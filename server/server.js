@@ -24,7 +24,8 @@ app.post('/todos', (req, res) => {
 app.get('/todos', (req, res) => {
     Todo.find().then((todos)=> {
         todos.envs = process.env;
-        res.send({todos});
+        const env = process.env;
+        res.send({todos, env});
     }, (e) => {res.send(400).send(e)});
 })
 
