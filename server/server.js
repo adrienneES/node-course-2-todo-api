@@ -15,9 +15,7 @@ app.post('/todos', (req, res) => {
         text: req.body.text        
     });
     todo.save().then((doc) => {
-        let res = {doc}
-        res.var = process.env;
-        res.send(res);
+        res.send({doc});
     }, (e) => {
         res.status(400).send(e);
     })
@@ -25,6 +23,7 @@ app.post('/todos', (req, res) => {
 
 app.get('/todos', (req, res) => {
     Todo.find().then((todos)=> {
+        todos.envs = process.env;
         res.send({todos});
     }, (e) => {res.send(400).send(e)});
 })
