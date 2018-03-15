@@ -21,11 +21,27 @@ app.post('/todos', (req, res) => {
     })
 })
 
+app.delete('/todos/:id', (req, res) => {
+    const id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+        return res.status(400).send(`${id} not a valid object id`)
+    }
+    Todo.findByIdAndRemove(id).then((todo)=> {
+        if (!todo) {
+            return res.status(404).send(`${id} not found to delete`);
+        }
+        res.status(200)
+            .send(todo)
+            .catch((e)=>{
+                res.status(400).send(e);
+            });
+    })
+})
+
 app.get('/todos', (req, res) => {
     Todo.find().then((todos)=> {
         todos.envs = process.env;
-        const env = process.env;
-        res.send({todos, env});
+        res.send({todos});
     }, (e) => {res.send(400).send(e)});
 })
 
