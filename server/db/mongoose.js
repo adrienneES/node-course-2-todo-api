@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+const connectionString = 'mongodb://<dbuser>:<dbpassword>@ds215019.mlab.com:15019/todo1';
+//connectionString = 'mongodb://localhost:27017/TodoApp'
+mongoose.connect(connectionString);
 
 
 module.exports = {
