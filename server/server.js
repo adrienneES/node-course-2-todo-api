@@ -14,8 +14,8 @@ app.post('/todos', (req, res) => {
     let todo = new Todo({
         text: req.body.text        
     });
-    todo.save().then((doc) => {
-        res.send({doc});
+    todo.save().then((todo) => {
+        res.send({todo});
     }, (e) => {
         res.status(400).send(e);
     })
@@ -31,10 +31,9 @@ app.delete('/todos/:id', (req, res) => {
             return res.status(404).send(`${id} not found to delete`);
         }
         res.status(200)
-            .send(todo)
-            .catch((e)=>{
-                res.status(400).send(e);
-            });
+            .send({todo});
+    }).catch((e)=>{
+        res.status(400).send()
     })
 })
 
