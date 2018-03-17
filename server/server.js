@@ -1,3 +1,4 @@
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
@@ -8,7 +9,7 @@ const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
 let app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
@@ -17,7 +18,7 @@ app.post('/todos', (req, res) => {
         text: req.body.text        
     });
     todo.save().then((todo) => {
-        res.send({todo});
+        res.send({"message": `todo was created`, todo});
     }, (e) => {
         res.status(400).send(e);
     })
@@ -33,7 +34,7 @@ app.delete('/todos/:id', (req, res) => {
             return res.status(404).send(`${id} not found to delete`);
         }
         res.status(200)
-            .send({todo});
+            .send({"message": `todo ${id} deleted`, todo});
     }).catch((e)=>{
         res.status(400).send()
     })
@@ -42,7 +43,7 @@ app.delete('/todos/:id', (req, res) => {
 app.get('/todos', (req, res) => {
     Todo.find().then((todos)=> {
         todos.envs = process.env;
-        res.send({todos});
+        res.send({"message": `all todos sent`, todos});
     }, (e) => {res.send(400).send(e)});
 })
 
@@ -55,7 +56,7 @@ app.get('/todos/:id', (req, res) => {
         if (!todo) {
             return res.status(404).send(`todo${req.params.id} not found`)
         }
-        res.send({todo});
+        res.send({"message": `todo ${id} sent`, todo});
     }, (e) => {res.status(400).send('problem seen');})
 });
 
@@ -81,7 +82,7 @@ app.patch('/todos/:id', (req, res) => {
             if (!todo) {
                 return res.status(404).send();
             }
-            res.status(200).send({"data": "data sent successfully", todo});
+            res.status(200).send({"message": "todo was patched", todo});
         })
         .catch((err)=>res.status(400).send());
     
