@@ -13,17 +13,6 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
-    let todo = new Todo({
-        text: req.body.text        
-    });
-    todo.save().then((todo) => {
-        res.send({"message": `todo was created`, todo});
-    }, (e) => {
-        res.status(400).send(e);
-    })
-})
-
 app.delete('/todos/:id', (req, res) => {
     const id = req.params.id;
     if (!ObjectID.isValid(id)) {
@@ -86,6 +75,31 @@ app.patch('/todos/:id', (req, res) => {
         })
         .catch((err)=>res.status(400).send());
     
+});
+
+app.post('/todos', (req, res) => {
+    let todo = new Todo({
+        text: req.body.text        
+    });
+    todo.save().then((todo) => {
+        res.send({"message": `todo was created`, todo});
+    }, (e) => {
+        res.status(400).send(e);
+    })
+})
+
+app.post('/users', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    const user = new User(body);
+    user.save().then(()=>{
+        return user.generateAuthToken();
+        //res.status(200).send({message:'saved', result});
+    }).then((token)=>{
+        res.header('x-auth',token).send(user);
+    })
+    .catch((e)=> {
+        res.status(400).send({message: 'error happened saving', err: e});
+    })
 })
 
 app.listen(port, () => {
