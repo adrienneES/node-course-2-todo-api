@@ -99,6 +99,16 @@ UserSchema.methods.toJSON = function () {
     let userObject = user.toObject();
     return _.pick (userObject, ['_id', 'email']);
 }
+UserSchema.methods.removeToken = function(token) {
+    let user = this;
+    return user.update({
+        $pull: {
+            tokens: {
+                token
+            }
+        }
+    })
+}
 const User = mongoose.model('User', UserSchema
  )
 module.exports = {User};

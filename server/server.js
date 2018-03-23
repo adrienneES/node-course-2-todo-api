@@ -106,8 +106,6 @@ app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 })
 
-// POST /users/login {email, password}
-// need to find a user that has same email & password that hashes to same as in db
 app.post('/users/login', (req, res) => {
     const body = _.pick(req.body, ['email', 'password']);
 
@@ -117,9 +115,16 @@ app.post('/users/login', (req, res) => {
         })
     }).catch((e)=> {
         res.status(400).send({message: e});
+    });
+});
+// logout
+app.delete('/users/me/token', authenticate, (req,res)=>{
+    req.user.removeToken(req.token).then(()=>{
+        res.status(200).send({message:'logged out'});
+    }).catch((e)=> {
+        res.status(400).send({message:'something happened'});
     })
 })
-
 app.listen(port, () => {
     console.log(`started on port ${port}`);
 });
