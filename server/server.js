@@ -13,12 +13,12 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(400).send(`${id} not a valid object id`)
     }
-    Todo.findByIdAndRemove(id).then((todo)=> {
+    Todo.findOneAndRemove({_id: id, _creator: req.user._id}).then((todo)=> {
         if (!todo) {
             return res.status(404).send(`${id} not found to delete`);
         }
@@ -29,19 +29,21 @@ app.delete('/todos/:id', (req, res) => {
     })
 })
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos)=> {
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _creator:req.user._id
+    }).then((todos)=> {
         todos.envs = process.env;
         res.send({"message": `all todos sent`, todos});
     }, (e) => {res.send(400).send(e)});
 })
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate,(req, res) => {
     const id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(404).send('bad object id');
     }
-    Todo.findById(req.params.id).then((todo)=>{
+    Todo.findOne({_id: id, _creator: req.user._id}).then((todo)=>{
         if (!todo) {
             return res.status(404).send(`todo${req.params.id} not found`)
         }
@@ -49,7 +51,7 @@ app.get('/todos/:id', (req, res) => {
     }, (e) => {res.status(400).send('problem seen');})
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id;
 
     // _.pick allows cherry picking of properties from object
@@ -66,7 +68,7 @@ app.patch('/todos/:id', (req, res) => {
         body.completed = false;
         body.completedAt = null;
     }
-    Todo.findByIdAndUpdate(id, {$set:body}, {new:true})
+    Todo.findOneAndUpdate({_id: id, _creator: req.user._id}, {$set:body}, {new:true})
         .then((todo)=> {
             if (!todo) {
                 return res.status(404).send();
@@ -77,9 +79,10 @@ app.patch('/todos/:id', (req, res) => {
     
 });
 
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     let todo = new Todo({
-        text: req.body.text        
+        text: req.body.text,
+        _creator: req.user._id
     });
     todo.save().then((todo) => {
         res.send({"message": `todo was created`, todo});
@@ -87,7 +90,7 @@ app.post('/todos', (req, res) => {
         res.status(400).send(e);
     })
 })
-
+ 
 app.post('/users', (req, res) => {
     const body = _.pick(req.body, ['email', 'password']);
     const user = new User(body);
