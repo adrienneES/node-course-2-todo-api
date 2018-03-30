@@ -212,7 +212,6 @@ describe('PATCH/todos:id', () => {
         }
         Todo.findOne({_id: id, _creator: users[0]._id})
         .then((todo)=> {
-          console.log(todo);
           expect(todo.text).toNotBe(updatedText);
         })
         done();
